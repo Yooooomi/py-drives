@@ -8,7 +8,7 @@ class TmpRoad(gameobject.Gameobject):
     self.color = color
     self.start_pos = inputs.get_mouse()
     self.draw_origin = pygame.Vector2((0, 0))
-    self.position = self.start_pos
+    self.local_position = self.start_pos
     self.end_pos = None
 
   def update(self):
@@ -18,5 +18,5 @@ class TmpRoad(gameobject.Gameobject):
     dir = mouse_pos - self.start_pos
     angle = math.atan2(dir.y, dir.x)
     self.rotation = math.degrees(angle)
-    self.surf = pygame.Surface((size, 15), pygame.SRCALPHA)
+    self.surf = pygame.Surface((size, 3), pygame.SRCALPHA)
     self.surf.fill(self.color)

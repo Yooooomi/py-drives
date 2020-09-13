@@ -7,5 +7,12 @@ def create(obj: Gameobject):
   obj.start()
 
 def delete(obj: Gameobject):
+  for child in obj.children:
+    delete(child)
   obj.end()
   objects.remove(obj)
+
+def find(typ):
+  for o in objects:
+    if isinstance(o, typ):
+      return o

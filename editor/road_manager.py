@@ -1,7 +1,8 @@
 from engine import gameobject, inputs, gamestate, gametime
 from editor.tmp_road import TmpRoad
-from editor.road import Road
+from common.road import Road
 from editor.start import Start
+from common.road_io import RoadIO
 import json
 import sys
 import pygame
@@ -22,14 +23,13 @@ from pygame.locals import (
 class RoadManager(gameobject.Gameobject):
   def __init__(self):
     super().__init__()
+    self.manager = RoadIO()
     self.tracing = None
     self.current_road = None
-    self.roads = []
     self.roads_obj = []
-    self.checks = []
     self.checks_obj = []
-    self.history = []
     self.start_obj = None
+    self.history = []
     self.saves = [
       (K_KP0, "map0"),
       (K_KP1, "map1"),
@@ -44,56 +44,55 @@ class RoadManager(gameobject.Gameobject):
     ]
     if len(sys.argv) == 2:
       filename = sys.argv[1]
-      try:
-        with open(filename, "r") as f:
-          roads = json.loads(f.read(10000000))
-          for r in roads:
-            print(r)
-            a = pygame.Vector2(r[0], r[1])
-            b = pygame.Vector2(r[2], r[3])
-            self.create_road(a, b)
-        pass
-      except Exception as e:
-        print("Could not load file", e)
-        pass
+      self.manager.load(filename)
+    for r in self.manager.roads:
+      self.create_road(r[0], r[1], True)
+    for r in self.manager.checks:
+      self.create_check(r[0], r[1], True)
+    self.set_start(self.manager.start_pos[0], self.manager.start_pos[1], True)
 
   def undo(self):
     if len(self.history) <= 0:
       return
+    self.manager.undo()
     typ = self.history.pop()
-    self.roads.pop()
     obj = self.roads_obj.pop()
     gamestate.delete(obj)
 
-  def create_road(self, a, b):
+  def create_road(self, a, b, loading = False):
     self.history.append("road")
-    self.roads.append([a, b])
+    if loading == False:
+      self.manager.create_road(a, b)
     new_road = Road(a, b, (255, 255, 255))
     self.roads_obj.append(new_road)
     gamestate.create(new_road)
 
-  def create_check(self, a, b):
+  def create_check(self, a, b, loading = False):
     self.history.append("check")
-    self.checks.append([a, b])
+    if loading == False:
+      self.manager.create_check(a, b)
     new_road = Road(a, b, (0, 255, 0))
     self.checks_obj.append(new_road)
     gamestate.create(new_road)
 
-  def set_start(self, a, b):
+  def set_start(self, a, b, loading = False):
     if self.start_obj != None:
       gamestate.delete(self.start_obj)
       self.start_obj = None
     new_road = Road(a, b, (0, 0, 255))
+    if loading == False:
+      self.manager.set_start(a, b)
     self.start_obj = new_road
     gamestate.create(new_road)
+
+  def save(self, filename):
+    self.manager.save(filename)
 
   def update(self):
     super().update()
     for s in self.saves:
       if inputs.is_key_clicked(s[0]):
-        with open(s[1], "w") as f:
-          print(self.roads)
-          f.write(json.dumps([[v[0].x, v[0].y, v[1].x, v[1].y] for v in self.roads]))
+        self.save(s[1])
     if inputs.is_key_clicked(K_z):
       self.undo()
     if inputs.is_mouse_clicked(1):

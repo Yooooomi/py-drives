@@ -21,7 +21,6 @@ def launch():
     screen.fill((0, 0, 0))
     inputs.init()
     for event in pygame.event.get():
-      print(event)
       if event == QUIT:
         running = False
       if event.type == KEYDOWN:
@@ -34,10 +33,11 @@ def launch():
         inputs.set_mouse_button_down(event.button)
       if event.type == MOUSEBUTTONUP:
         inputs.set_mouse_button_up(event.button)
-    gametime.delta_time = time.time() - last_time
     for obj in gamestate.objects:
       obj.update()
     for obj in gamestate.objects:
       obj.draw(screen)
     pygame.display.flip()
+    # print("Took", (time.time() - last_time) * 1000)
+    gametime.delta_time = time.time() - last_time
     last_time = time.time()

@@ -47,7 +47,6 @@ def set_mouse_button_down(button):
   mouse_buttons[button] = KeyState.DOWN
 
 def set_mouse_button_up(button):
-  print(button, mouse_buttons)
   if button in mouse_buttons and mouse_buttons[button] == KeyState.DOWN:
     mouse_clicks[button] = True
   mouse_buttons[button] = KeyState.UP

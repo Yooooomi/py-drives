@@ -5,8 +5,14 @@ sys.path.insert(0, parent_dir)
 
 from engine import gamestate, entry
 from game.car import Car
+from game.road_manager import RoadManager
+from game.map_runner import MapRunner
+from game.point import Point
+import pygame
 
-car = Car()
-gamestate.create(car)
-print("Launch")
+rm = RoadManager()
+gamestate.create(rm)
+runner = MapRunner()
+gamestate.create(runner)
+# gamestate.create(Car())
 entry.launch()
